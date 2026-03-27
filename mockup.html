@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ChemoCompanion - Prototype</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Design Tokens */
+            --primary: #2563EB;
+            --primary-light: #EFF6FF;
+            --primary-dark: #1E40AF;
+            
+            --bg-body: #E2E8F0;
+            --bg-app: #F8FAFC;
+            --bg-card: #FFFFFF;
+            
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --text-light: #94A3B8;
+            
+            --color-anti: #10B981; /* Vert */
+            --color-aplasie: #EF4444; /* Rouge */
+            --color-bains: #3B82F6; /* Bleu */
+            --color-folli: #6B7280; /* Gris */
+            --color-symptom: #F97316; /* Orange */
+            
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-6: 24px;
+            --space-8: 32px;
+            
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
+            
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        /* App Container (Mobile Frame) */
+        #app-container {
+            width: 100%;
+            max-width: 430px;
+            height: 100vh;
+            max-height: 932px;
+            background-color: var(--bg-app);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 431px) {
+            #app-container {
+                height: 90vh;
+                border-radius: 40px;
+                box-shadow: var(--shadow-lg), 0 0 0 12px #0F172A;
+            }
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: var(--bg-app);
+            overflow-y: auto;
+            animation: fadeIn 0.3s ease;
+            padding-bottom: 80px; /* Space for bottom nav */
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography */
+        h1 { font-size: 24px; font-weight: 800; margin-bottom: var(--space-2); letter-spacing: -0.02em; }
+        h2 { font-size: 20px; font-weight: 700; margin-bottom: var(--space-4); letter-spacing: -0.01em; }
+        h3 { font-size: 16px; font-weight: 700; color: var(--text-main); }
+        p { font-size: 15px; color: var(--text-muted); }
+        .text-sm { font-size: 13px; }
+        .text-xs { font-size: 11px; }
+
+        /* Layout Primitives */
+        .p-6 { padding: var(--space-6); }
+        .p-4 { padding: var(--space-4); }
+        .mt-4 { margin-top: var(--space-4); }
+        .mt-6 { margin-top: var(--space-6); }
+        .mt-auto { margin-top: auto; }
+        .mb-4 { margin-bottom: var(--space-4); }
+        .gap-2 { gap: var(--space-2); }
+        .gap-4 { gap: var(--space-4); }
+        .flex { display: flex; }
+        .flex-col { display: flex; flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-center { justify-content: center; }
+
+        /* Components */
+        .header {
+            padding: var(--space-6) var(--space-6) var(--space-4);
+            background: var(--bg-card);
+            border-bottom: 1px solid #E2E8F0;
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-main);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: var(--radius-full);
+            transition: background 0.2s;
+        }
+        .back-btn:active { background: var(--bg-body); }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 16px;
+            border-radius: var(--radius-lg);
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        .btn-primary:active { transform: scale(0.98); }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-ghost {
+            background: var(--bg-body);
+            color: var(--text-main);
+        }
+
+        .input-group { margin-bottom: var(--space-4); }
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: var(--space-2);
+            color: var(--text-main);
+        }
+        .input-group input[type="text"], 
+        .input-group input[type="date"],
+        .input-group input[type="time"],
+        .input-group input[type="number"] {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid #CBD5E1;
+            font-size: 16px;
+            font-family: inherit;
+            background: var(--bg-card);
+            color: var(--text-main);
+            transition: border-color 0.2s;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* Radio & Toggle styling */
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+        }
+        .radio-label {
+            display: flex;
+            align-items: center;
+            padding: 14px;
+            background: var(--bg-card);
+            border: 1px solid #CBD5E1;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .radio-label input { margin-right: 12px; width: 18px; height: 18px; accent-color: var(--primary); }
+        
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-2);
+            box-shadow: var(--shadow-sm);
+        }
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 28px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #CBD5E1; transition: .4s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px;
+            background-color: white; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* Code Display */
+        .code-display {
+            font-size: 48px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-align: center;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: var(--space-6);
+            border-radius: var(--radius-xl);
+            margin: var(--space-6) 0;
+        }
+
+        /* Schedule Grid */
+        .schedule-table-container {
+            overflow-x: auto;
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: var(--space-6);
+        }
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            min-width: 600px; /* Force scroll on mobile */
+        }
+        .schedule-table th, .schedule-table td {
+            border: 1px solid #E2E8F0;
+            padding: 8px;
+            text-align: center;
+            vertical-align: top;
+            width: 14.28%; /* 7 days */
+        }
+        .schedule-table th {
+            background: var(--bg-body);
+            font-weight: 700;
+            color: var(--text-main);
+            position: sticky;
+            top: 0;
+        }
+        .time-row-label {
+            font-weight: 700;
+            color: var(--text-muted);
+            background: var(--bg-app);
+            padding: 4px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-align: left;
+        }
+        .med-pill {
+            display: inline-block;
+            padding: 4px 6px;
+            border-radius: 4px;
+            color: white;
+            font-weight: 600;
+            margin-bottom: 2px;
+            width: 100%;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* Patient Today Timeline */
+        .timeline-card {
+            display: flex;
+            align-items: stretch;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-3);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            position: relative;
+            transition: opacity 0.3s;
+        }
+        .timeline-card.taken {
+            opacity: 0.6;
+        }
+        .timeline-card.taken .timeline-content h3 {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+        .timeline-color-stripe {
+            width: 8px;
+            flex-shrink: 0;
+        }
+        .timeline-content {
+            padding: var(--space-4);
+            flex: 1;
+        }
+        .timeline-action {
+            padding: var(--space-4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-left: 1px solid #E2E8F0;
+        }
+        .custom-checkbox {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            border: 2px solid #CBD5E1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .timeline-card.taken .custom-checkbox {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        .timeline-card.taken .custom-checkbox::after {
+            content: "✓";
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Chatbot */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+            flex: 1;
+        }
+        .chat-bubble {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 20px;
+            font-size: 15px;
+            line-height: 1.4;
+            animation: fadeIn 0.3s ease;
+        }
+        .chat-bot {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
+            box-shadow: var(--shadow-sm);
+        }
+        .chat-user {
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+            align-self: flex-end;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        .chat-actions {
+            display: flex;
+            gap: var(--space-2);
+            margin-top: var(--space-2);
+            flex-wrap: wrap;
+        }
+        .chat-btn {
+            background: var(--primary-light);
+            color: var(--primary);
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .quick-replies {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 12px 0;
+            margin-top: auto;
+            scrollbar-width: none;
+        }
+        .quick-reply-btn {
+            background: var(--bg-card);
+            border: 1px solid #E2E8F0;
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+            white-space: nowrap;
+            font-weight: 600;
+            color: var(--text-main);
+            box-shadow: var(--shadow-sm);
+        }
+        .chat-input-area {
+            display: flex;
+            gap: 8px;
+            background: var(--bg-card);
+            padding: 12px var(--space-6);
+            border-top: 1px solid #E2E8F0;
+            position: absolute;
+            bottom: 80px;
+            left: 0;
+            width: 100%;
+        }
+        .chat-input-area input {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: var(--radius-full);
+            border: 1px solid #E2E8F0;
+            background: var(--bg-body);
+            font-family: inherit;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--bg-card);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0 24px;
+            border-top: 1px solid #E2E8F0;
+            z-index: 20;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            font-family: inherit;
+            cursor: pointer;
+            width: 33%;
+        }
+        .nav-item.active {
+            color: var(--primary);
+            font-weight: 700;
+        }
+        .nav-icon { font-size: 24px; }
+        .nav-label { font-size: 11px; font-weight: 600; }
+
+        /* Step Indicator */
+        .step-indicator {
+            display: flex;
+            gap: 4px;
+            margin-bottom: var(--space-6);
+        }
+        .step-dot {
+            height: 4px;
+            flex: 1;
+            background: #E2E8F0;
+            border-radius: 2px;
+        }
+        .step-dot.active { background: var(--primary); }
+
+        /* Helpers */
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .brand-logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 48px;
+            letter-spacing: -1px;
+        }
+        .brand-logo span { color: var(--text-main); }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+
+    <!-- ==================== LANDING SCREEN ==================== -->
+    <div id="screen-landing" class="screen active p-6 flex-col justify-center">
+        <div class="brand-logo">Chemo<span>Companion</span></div>
+        <p class="text-center mb-4">Bienvenue. Sélectionnez votre interface pour commencer.</p>
+        
+        <div class="flex-col gap-4 mt-6">
+            <button class="btn btn-primary" onclick="nav('screen-doc-dashboard')">Interface Médecin</button>
+            <button class="btn btn-outline" onclick="nav('screen-pat-login')">Interface Patient</button>
+        </div>
+    </div>
+
+    <!-- ==================== DOCTOR FLOW ==================== -->
+    
+    <!-- Doc Dashboard -->
+    <div id="screen-doc-dashboard" class="screen">
+        <div class="header">
+            <button class="back-btn" onclick="nav('screen-landing')">←</button>
+            <h3>Patients Actifs</h3>
+        </div>
+        <div class="p-6 flex-col gap-4">
+            <button class="btn btn-primary mb-4" onclick="nav('screen-doc-patient-new')">+ Nouveau Patient</button>
+            
+            <div class="bg-card p-4 rounded-lg" style="background: white; border-radius: 16px; padding: 16px; box-shadow: var(--shadow-sm);">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 style="margin:0">Martin, Sophie</h3>
+                    <span style="background: #ECFDF5; color: #059669; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 700;">85% Adhésion</span>
+                </div>
+                <p class="text-sm mb-2">Protocole: FOLFOX • J3</p>
+                <div style="background: #FFF7ED; color: #C2410C; padding: 8px; border-radius: 8px; font-size: 12px;">
+                    ⚠️ Signalement: Nausées modérées (il y a 2h)
+                </div>
+            </div>
+
+            <div class="bg-card p-4 rounded-lg" style="background: white; border-radius: 16px; padding: 16px; box-shadow: var(--shadow-sm);">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 style="margin:0">Dubois, Jean</h3>
+                    <span style="background: #ECFDF5; color: #059669; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 700;">100% Adhésion</span>
+                </div>
+                <p class="text-sm">Protocole: EC • J5</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doc 1: New Patient -->
+    <div id="screen-doc-patient-new" class="screen p-6">
+        <div class="header" style="padding: 0 0 24px 0; border: none; background: transparent;">
+            <button class="back-btn" onclick="nav('screen-doc-dashboard')">←</button>
+        </div>
+        <div class="step-indicator">
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+            <div class="step-dot"></div>
+        </div>
+        <h2>Nouveau Patient</h2>
+        <p class="mb-4">Saisissez les informations d'identité.</p>
+
+        <div class="input-group">
+            <label>Nom</label>
+            <input type="text" id="doc-pat-nom" placeholder="Ex: Dupont" value="Moreau">
+        </div>
+        <div class="input-group">
+            <label>Prénom</label>
+            <input type="text" id="doc-pat-prenom" placeholder="Ex: Marie" value="Claire">
+        </div>
+        <div class="input-group">
+            <label>Date de naissance</label>
+            <input type="date" id="doc-pat-dob" value="1965-04-12">
+        </div>
+
+        <button class="btn btn-primary mt-auto" onclick="createPatient()">Continuer vers le protocole</button>
+    </div>
+
+    <!-- Doc 2: Protocol Config -->
+    <div id="screen-doc-protocol" class="screen p-6">
+        <div class="header" style="padding: 0 0 24px 0; border: none; background: transparent;">
+            <button class="back-btn" onclick="nav('screen-doc-patient-new')">←</button>
+        </div>
+        <div class="step-indicator">
+            <div class="step-dot active"></div>
+            <div class="step-dot active"></div>
+            <div class="step-dot"></div>
+        </div>
+        <h2>Configuration Protocole</h2>
+        
+        <div class="input-group">
+            <label>Nom du protocole</label>
+            <input type="text" id="doc-prot-name" value="FOLFOX">
+        </div>
+
+        <div class="input-group">
+            <label>Cycle</label>
+            <div class="radio-group">
+                <label class="radio-label"><input type="radio" name="cycle" value="J1-J15" checked> J1-J15</label>
+                <label class="radio-label"><input type="radio" name="cycle" value="J1-J8-J15"> J1-J8-J15</label>
+            </div>
+        </div>
+
+        <div class="input-group mt-4">
+            <label>Niveau émétisant</label>
+            <div class="radio-group">
+                <label class="radio-label"><input type="radio" name="emeto" value="haut"> Hautement</label>
+                <label class="radio-label"><input type="radio" name="emeto" value="mod" checked> Modérément</label>
+                <label class="radio-label"><input type="radio" name="emeto" value="faible"> Faiblement</label>
+            </div>
+        </div>
+
+        <div class="mt-6 mb-4">
+            <label style="font-weight: 600; font-size: 14px; margin-bottom: 8px; display: block;">Traitements de support</label>
+            
+            <div class="toggle-row">
+                <div>
+                    <div style="font-weight: 600;">Traitement aplasiant</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">Filgrastim ou équivalent</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-aplasie" onchange="toggleAplasieOptions()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div id="aplasie-options" class="hidden radio-group" style="padding: 12px; background: white; border-radius: 12px; margin-bottom: 8px;">
+                <label style="font-size: 14px;"><input type="radio" name="aplasie-type" value="Pegfilgrastim" checked> Pegfilgrastim (J3)</label>
+                <label style="font-size: 14px;"><input type="radio" name="aplasie-type" value="Filgrastim 3j"> Filgrastim 3 jours</label>
+                <label style="font-size: 14px;"><input type="radio" name="aplasie-type" value="Filgrastim 5j"> Filgrastim 5 jours</label>
+            </div>
+
+            <div class="toggle-row">
+                <div>
+                    <div style="font-weight: 600;">Bains de bouche</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">Bicarbonate</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-bains" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="toggle-row">
+                <div>
+                    <div style="font-weight: 600;">Prévention folliculite</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">Doxycycline</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggle-folli">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <button class="btn btn-primary mt-4" onclick="generateSchedule()">Générer l'agenda</button>
+    </div>
+
+    <!-- Doc 3: Schedule Editor -->
+    <div id="screen-doc-schedule" class="screen p-6">
+        <div class="header" style="padding: 0 0 24px 0; border: none; background: transparent;">
+            <button class="back-btn" onclick="nav('screen-doc-protocol')">←</button>
+        </div>
+        <div class="step-indicator">
+            <div class="step-dot active"></div>
+            <div class="step-dot active"></div>
+            <div class="step-dot active"></div>
+        </div>
+        <h2>Validation de l'agenda</h2>
+        <p class="mb-4 text-sm">Généré selon les règles du protocole. Cliquez sur une case pour modifier.</p>
+        
+        <div class="schedule-table-container">
+            <table class="schedule-table" id="doc-schedule-table">
+                <!-- Generated via JS -->
+            </table>
+        </div>
+
+        <button class="btn btn-primary mt-auto" onclick="nav('screen-doc-code')">Confirmer et générer le code</button>
+    </div>
+
+    <!-- Doc 4: Patient Code -->
+    <div id="screen-doc-code" class="screen p-6 flex-col justify-center text-center">
+        <h2>Patient enregistré</h2>
+        <p>Veuillez transmettre ce code à <strong id="display-pat-name">Mme Moreau</strong> pour sa première connexion.</p>
+        
+        <div class="code-display" id="generated-code">123456</div>
+        
+        <div class="flex-col gap-4 mt-6">
+            <button class="btn btn-primary" onclick="alert('Impression du document envoyée à l\'imprimante.')">Imprimer la fiche</button>
+            <button class="btn btn-ghost" onclick="nav('screen-doc-dashboard')">Retour à l'accueil</button>
+        </div>
+    </div>
+
+
+    <!-- ==================== PATIENT FLOW ==================== -->
+
+    <!-- Pat 1: Login -->
+    <div id="screen-pat-login" class="screen p-6 flex-col justify-center">
+        <div class="header" style="position:absolute; top:0; left:0; width:100%; padding:24px; border:none; background:transparent;">
+            <button class="back-btn" onclick="nav('screen-landing')">←</button>
+        </div>
+        
+        <div class="brand-logo" style="margin-bottom: 24px;">Chemo<span>Companion</span></div>
+        <h2 class="text-center">Bienvenue</h2>
+        <p class="text-center mb-6">Saisissez le code fourni par votre équipe médicale.</p>
+        
+        <div class="input-group">
+            <input type="number" placeholder="Code à 6 chiffres" style="text-align: center; font-size: 24px; letter-spacing: 4px;" value="123456">
+        </div>
+        
+        <button class="btn btn-primary mt-4" onclick="nav('screen-pat-onboarding')">Accéder</button>
+    </div>
+
+    <!-- Pat 2: Onboarding -->
+    <div id="screen-pat-onboarding" class="screen p-6">
+        <h2 class="mt-6">Préparation</h2>
+        <p class="mb-6">Pour personnaliser votre agenda, nous avons besoin de deux informations.</p>
+        
+        <div class="input-group">
+            <label>Date de votre prochaine chimiothérapie</label>
+            <input type="date" value="2026-10-15">
+        </div>
+        
+        <div class="input-group">
+            <label>Heure de convocation</label>
+            <input type="time" value="09:00">
+        </div>
+        
+        <div class="input-group mt-6">
+            <label>Quel est votre poids actuel ? (kg)</label>
+            <input type="number" placeholder="Ex: 65" value="68">
+        </div>
+        
+        <button class="btn btn-primary mt-auto" onclick="nav('screen-pat-today')">Générer mon planning</button>
+    </div>
+
+    <!-- Pat 3: Today View -->
+    <div id="screen-pat-today" class="screen">
+        <div class="header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+            <div style="font-size: 14px; color: var(--text-muted);">Bonjour Claire,</div>
+            <h2 style="margin: 0;">J3 — Mercredi 15 Oct.</h2>
+        </div>
+        
+        <div class="p-4" style="padding-bottom: 100px;">
+            <h3 class="mb-4" style="font-size: 14px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;">Matin</h3>
+            
+            <!-- Timeline Item 1 -->
+            <div class="timeline-card taken">
+                <div class="timeline-color-stripe" style="background-color: var(--color-anti);"></div>
+                <div class="timeline-content" onclick="alert('Solupred : Corticoïde pour prévenir les nausées retardées.')">
+                    <h3>Solupred 20mg</h3>
+                    <p class="text-sm">1 comprimé au cours du repas</p>
+                </div>
+                <div class="timeline-action">
+                    <div class="custom-checkbox"></div>
+                </div>
+            </div>
+            
+            <!-- Timeline Item 2 -->
+            <div class="timeline-card taken">
+                <div class="timeline-color-stripe" style="background-color: var(--color-bains);"></div>
+                <div class="timeline-content" onclick="alert('Bains de bouche : Prévient les mucosites (aphtes).')">
+                    <h3>Bains de bouche</h3>
+                    <p class="text-sm">Après le brossage des dents</p>
+                </div>
+                <div class="timeline-action">
+                    <div class="custom-checkbox"></div>
+                </div>
+            </div>
+
+            <!-- Timeline Item 3 (Aplasie) -->
+            <div class="timeline-card">
+                <div class="timeline-color-stripe" style="background-color: var(--color-aplasie);"></div>
+                <div class="timeline-content" onclick="alert('Pegfilgrastim : Stimule la production de globules blancs pour prévenir les infections.')">
+                    <h3>Pegfilgrastim</h3>
+                    <p class="text-sm">Injection sous-cutanée (par infirmier)</p>
+                </div>
+                <div class="timeline-action">
+                    <div class="custom-checkbox" onclick="toggleMed(this, event)"></div>
+                </div>
+            </div>
+
+            <h3 class="mb-4 mt-6" style="font-size: 14px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;">Midi</h3>
+            
+            <div class="timeline-card">
+                <div class="timeline-color-stripe" style="background-color: var(--color-bains);"></div>
+                <div class="timeline-content">
+                    <h3>Bains de bouche</h3>
+                    <p class="text-sm">Après le repas</p>
+                </div>
+                <div class="timeline-action">
+                    <div class="custom-checkbox" onclick="toggleMed(this, event)"></div>
+                </div>
+            </div>
+            
+             <h3 class="mb-4 mt-6" style="font-size: 14px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;" id="symptom-header" style="display:none">Symptômes ajoutés</h3>
+            <div class="timeline-card" id="symptom-card" style="display:none">
+                <div class="timeline-color-stripe" style="background-color: var(--color-symptom);"></div>
+                <div class="timeline-content">
+                    <h3>Métoclopramide</h3>
+                    <p class="text-sm">Si nausées - 30 min avant repas</p>
+                </div>
+                <div class="timeline-action">
+                    <div class="custom-checkbox" onclick="toggleMed(this, event)"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Nav -->
+        <div class="bottom-nav">
+            <button class="nav-item active" onclick="nav('screen-pat-today')">
+                <span class="nav-icon">📅</span>
+                <span class="nav-label">Aujourd'hui</span>
+            </button>
+            <button class="nav-item" onclick="nav('screen-pat-chat')">
+                <span class="nav-icon">💬</span>
+                <span class="nav-label">Symptôme</span>
+            </button>
+            <button class="nav-item" onclick="nav('screen-pat-agenda')">
+                <span class="nav-icon">📋</span>
+                <span class="nav-label">Agenda</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Pat 4: Chat -->
+    <div id="screen-pat-chat" class="screen" style="padding-bottom: 140px;">
+        <div class="header">
+            <h3 style="margin: 0; text-align: center; width: 100%;">Assistant Médical</h3>
+        </div>
+        
+        <div class="p-4 chat-container" id="chat-history">
+            <div class="chat-bubble chat-bot">
+                Bonjour Claire, comment vous sentez-vous aujourd'hui ? Avez-vous des effets secondaires ?
+            </div>
+            
+            <div class="quick-replies" id="chat-quick-replies">
+                <button class="quick-reply-btn" onclick="simulateChatSymptom('Nausée')">🤢 Nausée</button>
+                <button class="quick-reply-btn" onclick="simulateChatSymptom('Diarrhée')">🚽 Diarrhée</button>
+                <button class="quick-reply-btn" onclick="simulateChatSymptom('Douleur')">🤕 Douleur</button>
+                <button class="quick-reply-btn" onclick="simulateChatSymptom('Fièvre')">🤒 Fièvre</button>
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" placeholder="Écrivez votre message..." disabled>
+            <button class="btn btn-primary" style="width: auto; padding: 12px; border-radius: 50%;">↑</button>
+        </div>
+
+        <!-- Bottom Nav -->
+        <div class="bottom-nav">
+            <button class="nav-item" onclick="nav('screen-pat-today')">
+                <span class="nav-icon">📅</span>
+                <span class="nav-label">Aujourd'hui</span>
+            </button>
+            <button class="nav-item active" onclick="nav('screen-pat-chat')">
+                <span class="nav-icon">💬</span>
+                <span class="nav-label">Symptôme</span>
+            </button>
+            <button class="nav-item" onclick="nav('screen-pat-agenda')">
+                <span class="nav-icon">📋</span>
+                <span class="nav-label">Agenda</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Pat 5: Agenda -->
+    <div id="screen-pat-agenda" class="screen p-6">
+        <div class="header" style="padding: 0 0 24px 0; border: none; background: transparent;">
+            <h2 style="margin:0">Votre Semaine</h2>
+        </div>
+        
+        <div class="schedule-table-container">
+            <table class="schedule-table" id="pat-schedule-table">
+                <!-- Generated via JS -->
+            </table>
+        </div>
+
+        <div class="mt-4 p-4 bg-card" style="border-radius: 12px; font-size: 13px; box-shadow: var(--shadow-sm); background: white;">
+            <h4 style="margin-bottom: 8px;">Légende :</h4>
+            <div class="flex items-center gap-2 mb-1"><span style="width:12px;height:12px;border-radius:3px;background:var(--color-anti);display:inline-block;"></span> Anti-nauséeux</div>
+            <div class="flex items-center gap-2 mb-1"><span style="width:12px;height:12px;border-radius:3px;background:var(--color-aplasie);display:inline-block;"></span> Prévention infection</div>
+            <div class="flex items-center gap-2 mb-1"><span style="width:12px;height:12px;border-radius:3px;background:var(--color-bains);display:inline-block;"></span> Soins de bouche</div>
+            <div class="flex items-center gap-2 mb-1"><span style="width:12px;height:12px;border-radius:3px;background:var(--color-folli);display:inline-block;"></span> Prévention cutanée</div>
+            <div class="flex items-center gap-2"><span style="width:12px;height:12px;border-radius:3px;background:var(--color-symptom);display:inline-block;"></span> Traitement de secours</div>
+        </div>
+
+        <!-- Bottom Nav -->
+        <div class="bottom-nav">
+            <button class="nav-item" onclick="nav('screen-pat-today')">
+                <span class="nav-icon">📅</span>
+                <span class="nav-label">Aujourd'hui</span>
+            </button>
+            <button class="nav-item" onclick="nav('screen-pat-chat')">
+                <span class="nav-icon">💬</span>
+                <span class="nav-label">Symptôme</span>
+            </button>
+            <button class="nav-item active" onclick="nav('screen-pat-agenda')">
+                <span class="nav-icon">📋</span>
+                <span class="nav-label">Agenda</span>
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Navigation
+    function nav(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        
+        // Ensure scroll to top
+        document.getElementById(screenId).scrollTop = 0;
+        
+        // Populate agenda if visiting pat-agenda
+        if(screenId === 'screen-pat-agenda') {
+            renderScheduleTable('pat-schedule-table', true);
+        }
+    }
+
+    // Doctor Flow Logic
+    function createPatient() {
+        const nom = document.getElementById('doc-pat-nom').value;
+        const code = Math.floor(100000 + Math.random() * 900000);
+        document.getElementById('generated-code').innerText = code;
+        document.getElementById('display-pat-name').innerText = `M. / Mme ${nom || 'Patient'}`;
+        nav('screen-doc-protocol');
+    }
+
+    function toggleAplasieOptions() {
+        const isChecked = document.getElementById('toggle-aplasie').checked;
+        const options = document.getElementById('aplasie-options');
+        if (isChecked) {
+            options.classList.remove('hidden');
+        } else {
+            options.classList.add('hidden');
+        }
+    }
+
+    let generatedGrid = [];
+
+    function generateSchedule() {
+        const emeto = document.querySelector('input[name="emeto"]:checked').value;
+        const aplasie = document.getElementById('toggle-aplasie').checked;
+        const aplasieType = aplasie ? document.querySelector('input[name="aplasie-type"]:checked').value : null;
+        const bains = document.getElementById('toggle-bains').checked;
+        const folli = document.getElementById('toggle-folli').checked;
+
+        // Init grid: 7 days, 4 time slots
+        generatedGrid = Array(7).fill(0).map(() => ({ 
+            '2H_AVANT': [], 'MATIN': [], 'MIDI': [], 'SOIR': [] 
+        }));
+
+        // Rule Engine Implementation based on presentation.md rules
+        if (emeto === 'haut') {
+            generatedGrid[0]['2H_AVANT'].push({ name: 'Ondansétron', color: 'var(--color-anti)' });
+            generatedGrid[0]['MATIN'].push({ name: 'Aprépitant', color: 'var(--color-anti)' });
+            
+            generatedGrid[1]['MATIN'].push({ name: 'Aprépitant', color: 'var(--color-anti)' });
+            generatedGrid[1]['MATIN'].push({ name: 'Solupred', color: 'var(--color-anti)' });
+            generatedGrid[1]['SOIR'].push({ name: 'Olanzapine', color: 'var(--color-anti)' });
+            
+            generatedGrid[2]['MATIN'].push({ name: 'Aprépitant', color: 'var(--color-anti)' });
+            generatedGrid[2]['MATIN'].push({ name: 'Solupred', color: 'var(--color-anti)' });
+            generatedGrid[2]['SOIR'].push({ name: 'Olanzapine', color: 'var(--color-anti)' });
+            
+            generatedGrid[3]['MATIN'].push({ name: 'Solupred', color: 'var(--color-anti)' });
+            generatedGrid[3]['SOIR'].push({ name: 'Olanzapine', color: 'var(--color-anti)' });
+        } else if (emeto === 'mod') {
+            generatedGrid[0]['2H_AVANT'].push({ name: 'Ondansétron', color: 'var(--color-anti)' });
+            generatedGrid[1]['MATIN'].push({ name: 'Solupred', color: 'var(--color-anti)' });
+            generatedGrid[2]['MATIN'].push({ name: 'Solupred', color: 'var(--color-anti)' });
+            generatedGrid[3]['MATIN'].push({ name: 'Solupred', color: 'var(--color-anti)' });
+        }
+
+        if (aplasie && aplasieType) {
+            // J3 = index 2
+            generatedGrid[2]['MATIN'].push({ name: aplasieType, color: 'var(--color-aplasie)' });
+        }
+
+        if (bains) {
+            for(let i=0; i<7; i++) {
+                generatedGrid[i]['MATIN'].push({ name: 'Bains Bouche', color: 'var(--color-bains)' });
+                generatedGrid[i]['MIDI'].push({ name: 'Bains Bouche', color: 'var(--color-bains)' });
+                generatedGrid[i]['SOIR'].push({ name: 'Bains Bouche', color: 'var(--color-bains)' });
+            }
+        }
+
+        if (folli) {
+            for(let i=0; i<7; i++) {
+                generatedGrid[i]['SOIR'].push({ name: 'Doxycycline', color: 'var(--color-folli)' });
+            }
+        }
+
+        renderScheduleTable('doc-schedule-table', false);
+        nav('screen-doc-schedule');
+    }
+
+    function renderScheduleTable(tableId, isReadOnly = false) {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        
+        const timeslots = ['2H_AVANT', 'MATIN', 'MIDI', 'SOIR'];
+        const labels = ['2h Avant', 'Matin', 'Midi', 'Soir'];
+        
+        let html = '<thead><tr><th></th>';
+        for(let j=1; j<=7; j++) {
+            html += `<th>J${j}</th>`;
+        }
+        html += '</tr></thead><tbody>';
+
+        timeslots.forEach((slot, idx) => {
+            html += `<tr><td class="time-row-label">${labels[idx]}</td>`;
+            for(let d=0; d<7; d++) {
+                html += `<td>`;
+                // Add meds
+                if (generatedGrid[d] && generatedGrid[d][slot]) {
+                    generatedGrid[d][slot].forEach(med => {
+                        const clickHandler = isReadOnly ? `onclick="alert('${med.name}')"` : `onclick="alert('Édition de ${med.name}')"`;
+                        html += `<div class="med-pill" style="background-color: ${med.color}" ${clickHandler}>${med.name}</div>`;
+                    });
+                }
+                
+                // Demo addition for symptom on pat agenda
+                if (isReadOnly && d === 2 && slot === 'MIDI' && window.hasSymptomMed) {
+                    html += `<div class="med-pill" style="background-color: var(--color-symptom)">Métoclopramide</div>`;
+                }
+
+                html += `</td>`;
+            }
+            html += `</tr>`;
+        });
+        
+        html += '</tbody>';
+        table.innerHTML = html;
+    }
+
+    // Patient Interactions
+    function toggleMed(el, event) {
+        event.stopPropagation();
+        const card = el.closest('.timeline-card');
+        card.classList.toggle('taken');
+    }
+
+    window.hasSymptomMed = false;
+
+    function simulateChatSymptom(symptom) {
+        const container = document.getElementById('chat-history');
+        const replies = document.getElementById('chat-quick-replies');
+        replies.style.display = 'none';
+
+        // User message
+        const userMsg = document.createElement('div');
+        userMsg.className = 'chat-bubble chat-user';
+        userMsg.innerText = `J'ai des ${symptom.toLowerCase()}s depuis ce matin`;
+        container.appendChild(userMsg);
+
+        // Scroll
+        container.scrollTop = container.scrollHeight;
+
+        // Bot typing simulation
+        setTimeout(() => {
+            const botMsg = document.createElement('div');
+            botMsg.className = 'chat-bubble chat-bot';
+            
+            if (symptom === 'Nausée') {
+                botMsg.innerHTML = `Je comprends. Compte tenu de votre traitement FOLFOX, je vous recommande de prendre du <strong>Métoclopramide</strong> (1 comprimé 30 minutes avant votre prochain repas).<br><br>Souhaitez-vous que j'ajoute ce traitement à votre agenda ?
+                <div class="chat-actions">
+                    <button class="chat-btn" onclick="acceptSymptomMed(this)">Oui, ajouter</button>
+                    <button class="chat-btn" style="background: var(--bg-body); color: var(--text-muted);" onclick="this.parentElement.innerHTML = '<em>Refusé</em>'">Non merci</button>
+                </div>`;
+            } else {
+                botMsg.innerHTML = `Veuillez contacter votre centre de soins si la gêne persiste. Pour urgence, appelez le 15.`;
+            }
+            
+            container.appendChild(botMsg);
+            container.scrollTop = container.scrollHeight;
+        }, 800);
+    }
+
+    function acceptSymptomMed(btnElement) {
+        const actionsDiv = btnElement.parentElement;
+        actionsDiv.innerHTML = `<span style="color: var(--color-anti); font-weight: 600;">✓ Ajouté à l'agenda</span>`;
+        window.hasSymptomMed = true;
+        
+        document.getElementById('symptom-header').style.display = 'block';
+        document.getElementById('symptom-card').style.display = 'flex';
+        
+        setTimeout(() => {
+            const container = document.getElementById('chat-history');
+            const botMsg = document.createElement('div');
+            botMsg.className = 'chat-bubble chat-bot';
+            botMsg.innerHTML = `Le Métoclopramide a été ajouté. N'oubliez pas de bien vous hydrater. Si les symptômes persistent plus de 24h, contactez les urgences.`;
+            container.appendChild(botMsg);
+            container.scrollTop = container.scrollHeight;
+        }, 500);
+    }
+
+    // Default generate to ensure patient screens look right even without visiting doc flow
+    generateSchedule();
+
+    // Hash-based routing: #doctor → doctor flow, #patient → patient flow
+    function handleRoute() {
+        const hash = window.location.hash.toLowerCase();
+        if (hash === '#doctor' || hash === '#medecin') {
+            nav('screen-doc-dashboard');
+        } else if (hash === '#patient') {
+            nav('screen-pat-login');
+        }
+    }
+    window.addEventListener('hashchange', handleRoute);
+    handleRoute();
+
+</script>
+</body>
+</html>

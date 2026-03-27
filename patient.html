@@ -181,11 +181,11 @@
         <p class="mb-6">Pour personnaliser votre agenda, nous avons besoin de quelques informations.</p>
         <div class="input-group">
             <label>Date de votre prochaine chimiothérapie</label>
-            <input type="date" value="2026-10-15">
+            <input type="date" id="chemo-date" value="2026-10-15">
         </div>
         <div class="input-group">
             <label>Heure de convocation</label>
-            <input type="time" value="09:00">
+            <input type="time" id="chemo-time" value="09:00">
         </div>
         <div class="input-group mt-6">
             <label>Quel est votre poids actuel ? (kg)</label>
@@ -197,46 +197,54 @@
     <div id="screen-pat-today" class="screen">
         <div class="header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
             <div style="font-size: 14px; color: var(--text-muted);">Bonjour Claire,</div>
-            <h2 style="margin: 0;">J3 — Mercredi 15 Oct.</h2>
+            <h2 style="margin: 0;" id="today-main-date">J3 — Mercredi 15 Oct.</h2>
         </div>
 
         <div class="p-4" style="padding-bottom: 100px;">
-            <h3 class="mb-4" style="font-size: 14px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;">Matin</h3>
+            <h3 id="header-matin" class="mb-4" style="font-size: 14px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;">Matin</h3>
 
             <div class="timeline-card taken">
                 <div class="timeline-color-stripe" style="background-color: var(--color-anti);"></div>
-                <div class="timeline-content" onclick="alert('Solupred : Corticoïde pour prévenir les nausées retardées après votre chimiothérapie.')">
-                    <h3>Solupred 20mg</h3>
+                <div class="timeline-content">
+                    <h3>💊 Solupred 20mg</h3>
                     <p class="text-sm">1 comprimé au cours du repas</p>
+                    <a href="javascript:void(0)" onclick="toggleInfo(this, event)" style="font-size: 12px; color: var(--text-muted); text-decoration: none; display: inline-block; margin-top: 4px;">ℹ️ À quoi ça sert ?</a>
+                    <div class="med-info hidden" style="font-size: 13px; margin-top: 8px; padding: 8px; background: #F1F5F9; border-radius: 8px; color: var(--text-main);">Aide à prévenir les nausées qui peuvent apparaître après votre chimiothérapie</div>
                 </div>
                 <div class="timeline-action"><div class="custom-checkbox"></div></div>
             </div>
 
             <div class="timeline-card taken">
                 <div class="timeline-color-stripe" style="background-color: var(--color-bains);"></div>
-                <div class="timeline-content" onclick="alert('Bains de bouche au bicarbonate : Prévient les mucites (aphtes) causées par la chimiothérapie.')">
-                    <h3>Bains de bouche</h3>
+                <div class="timeline-content">
+                    <h3>🫗 Bains de bouche</h3>
                     <p class="text-sm">Après le brossage des dents</p>
+                    <a href="javascript:void(0)" onclick="toggleInfo(this, event)" style="font-size: 12px; color: var(--text-muted); text-decoration: none; display: inline-block; margin-top: 4px;">ℹ️ À quoi ça sert ?</a>
+                    <div class="med-info hidden" style="font-size: 13px; margin-top: 8px; padding: 8px; background: #F1F5F9; border-radius: 8px; color: var(--text-main);">Protège votre bouche contre les aphtes causés par le traitement</div>
                 </div>
                 <div class="timeline-action"><div class="custom-checkbox"></div></div>
             </div>
 
             <div class="timeline-card">
                 <div class="timeline-color-stripe" style="background-color: var(--color-aplasie);"></div>
-                <div class="timeline-content" onclick="alert('Pegfilgrastim : Stimule la production de globules blancs pour prévenir les infections.')">
-                    <h3>Pegfilgrastim</h3>
+                <div class="timeline-content">
+                    <h3>💉 Pegfilgrastim</h3>
                     <p class="text-sm">Injection sous-cutanée (par infirmier)</p>
+                    <a href="javascript:void(0)" onclick="toggleInfo(this, event)" style="font-size: 12px; color: var(--text-muted); text-decoration: none; display: inline-block; margin-top: 4px;">ℹ️ À quoi ça sert ?</a>
+                    <div class="med-info hidden" style="font-size: 13px; margin-top: 8px; padding: 8px; background: #F1F5F9; border-radius: 8px; color: var(--text-main);">Aide votre corps à fabriquer des globules blancs pour vous protéger des infections</div>
                 </div>
                 <div class="timeline-action"><div class="custom-checkbox" onclick="toggleMed(this, event)"></div></div>
             </div>
 
-            <h3 class="mb-4 mt-6" style="font-size: 14px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;">Midi</h3>
+            <h3 id="header-midi" class="mb-4 mt-6" style="font-size: 14px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;">Midi</h3>
 
             <div class="timeline-card">
                 <div class="timeline-color-stripe" style="background-color: var(--color-bains);"></div>
-                <div class="timeline-content" onclick="alert('Bains de bouche au bicarbonate : À faire après chaque repas pour protéger votre bouche.')">
-                    <h3>Bains de bouche</h3>
+                <div class="timeline-content">
+                    <h3>🫗 Bains de bouche</h3>
                     <p class="text-sm">Après le repas</p>
+                    <a href="javascript:void(0)" onclick="toggleInfo(this, event)" style="font-size: 12px; color: var(--text-muted); text-decoration: none; display: inline-block; margin-top: 4px;">ℹ️ À quoi ça sert ?</a>
+                    <div class="med-info hidden" style="font-size: 13px; margin-top: 8px; padding: 8px; background: #F1F5F9; border-radius: 8px; color: var(--text-main);">Protège votre bouche contre les aphtes causés par le traitement</div>
                 </div>
                 <div class="timeline-action"><div class="custom-checkbox" onclick="toggleMed(this, event)"></div></div>
             </div>
@@ -245,29 +253,35 @@
 
             <div id="symptom-card" class="timeline-card hidden">
                 <div class="timeline-color-stripe" style="background-color: var(--color-symptom);"></div>
-                <div class="timeline-content" onclick="alert('Métoclopramide : Médicament anti-nausée à prendre 30 min avant les repas.')">
-                    <h3>Métoclopramide</h3>
+                <div class="timeline-content">
+                    <h3>💊 Métoclopramide</h3>
                     <p class="text-sm">30 min avant le repas — renouvelable toutes les 8h</p>
+                    <a href="javascript:void(0)" onclick="toggleInfo(this, event)" style="font-size: 12px; color: var(--text-muted); text-decoration: none; display: inline-block; margin-top: 4px;">ℹ️ À quoi ça sert ?</a>
+                    <div class="med-info hidden" style="font-size: 13px; margin-top: 8px; padding: 8px; background: #F1F5F9; border-radius: 8px; color: var(--text-main);">Aide à calmer les nausées, à prendre 30 minutes avant le repas</div>
                 </div>
                 <div class="timeline-action"><div class="custom-checkbox" onclick="toggleMed(this, event)"></div></div>
             </div>
 
-            <h3 class="mb-4 mt-6" style="font-size: 14px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;">Soir</h3>
+            <h3 id="header-soir" class="mb-4 mt-6" style="font-size: 14px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;">Soir</h3>
 
             <div class="timeline-card">
                 <div class="timeline-color-stripe" style="background-color: var(--color-bains);"></div>
-                <div class="timeline-content" onclick="alert('Bains de bouche au bicarbonate : Dernier bain de bouche de la journée, après le dîner.')">
-                    <h3>Bains de bouche</h3>
+                <div class="timeline-content">
+                    <h3>🫗 Bains de bouche</h3>
                     <p class="text-sm">Après le dîner</p>
+                    <a href="javascript:void(0)" onclick="toggleInfo(this, event)" style="font-size: 12px; color: var(--text-muted); text-decoration: none; display: inline-block; margin-top: 4px;">ℹ️ À quoi ça sert ?</a>
+                    <div class="med-info hidden" style="font-size: 13px; margin-top: 8px; padding: 8px; background: #F1F5F9; border-radius: 8px; color: var(--text-main);">Protège votre bouche contre les aphtes causés par le traitement</div>
                 </div>
                 <div class="timeline-action"><div class="custom-checkbox" onclick="toggleMed(this, event)"></div></div>
             </div>
 
             <div class="timeline-card">
                 <div class="timeline-color-stripe" style="background-color: var(--color-anti);"></div>
-                <div class="timeline-content" onclick="alert('Olanzapine : Aide à prévenir les nausées retardées, à prendre le soir.')">
-                    <h3>Olanzapine 5mg</h3>
+                <div class="timeline-content">
+                    <h3>💊 Olanzapine 5mg</h3>
                     <p class="text-sm">Au coucher</p>
+                    <a href="javascript:void(0)" onclick="toggleInfo(this, event)" style="font-size: 12px; color: var(--text-muted); text-decoration: none; display: inline-block; margin-top: 4px;">ℹ️ À quoi ça sert ?</a>
+                    <div class="med-info hidden" style="font-size: 13px; margin-top: 8px; padding: 8px; background: #F1F5F9; border-radius: 8px; color: var(--text-main);">Aide à prévenir les nausées tardives, à prendre le soir avant de dormir</div>
                 </div>
                 <div class="timeline-action"><div class="custom-checkbox" onclick="toggleMed(this, event)"></div></div>
             </div>
@@ -358,7 +372,57 @@
         document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
         document.getElementById(screenId).classList.add('active');
         document.getElementById(screenId).scrollTop = 0;
+        updateDatesAndTimes();
         if (screenId === 'screen-pat-agenda') renderAgenda();
+    }
+
+    function updateDatesAndTimes() {
+        var cDate = document.getElementById('chemo-date') ? document.getElementById('chemo-date').value : '2026-10-15';
+        var cTime = document.getElementById('chemo-time') ? document.getElementById('chemo-time').value : '09:00';
+        
+        var d = new Date(cDate);
+        if(isNaN(d.getTime())) d = new Date('2026-10-15');
+        
+        var d3 = new Date(d);
+        d3.setDate(d3.getDate() + 2);
+        
+        var days = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+        var months = ['Jan.','Fév.','Mars','Avr.','Mai','Juin','Juil.','Août','Sept.','Oct.','Nov.','Déc.'];
+        var todayStr = 'J3 — ' + days[d3.getDay()] + ' ' + d3.getDate() + ' ' + months[d3.getMonth()];
+        
+        var elDate = document.getElementById('today-main-date');
+        if(elDate) elDate.innerText = todayStr;
+        
+        var tParts = cTime.split(':');
+        var hours = parseInt(tParts[0], 10) || 9;
+        var min = tParts[1] || '00';
+        var avantH = hours - 2;
+        if(avantH < 0) avantH += 24;
+        var avantStr = (avantH < 10 ? '0' + avantH : avantH) + 'h' + min;
+        
+        var elMatin = document.getElementById('header-matin');
+        if(elMatin) elMatin.innerText = 'MATIN — 08h00';
+        var elMidi = document.getElementById('header-midi');
+        if(elMidi) elMidi.innerText = 'MIDI — 12h00';
+        var elSoir = document.getElementById('header-soir');
+        if(elSoir) elSoir.innerText = 'SOIR — 20h00';
+        
+        window.chemoDates = [];
+        for(var i=0; i<7; i++) {
+            var temp = new Date(d);
+            temp.setDate(temp.getDate() + i);
+            var ds = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'][temp.getDay()];
+            var dd = temp.getDate() < 10 ? '0'+temp.getDate() : temp.getDate();
+            var mm = (temp.getMonth()+1) < 10 ? '0'+(temp.getMonth()+1) : (temp.getMonth()+1);
+            window.chemoDates.push('J' + (i+1) + ' — ' + ds + ' ' + dd + '/' + mm);
+        }
+        window.avantTimeStr = avantStr;
+    }
+
+    function toggleInfo(el, event) {
+        event.stopPropagation();
+        var info = el.nextElementSibling;
+        if(info) info.classList.toggle('hidden');
     }
 
     function toggleMed(el, event) {
@@ -485,22 +549,22 @@
         var grid = [];
         for (var i = 0; i < 7; i++) grid.push({ '2H_AVANT': [], 'MATIN': [], 'MIDI': [], 'SOIR': [] });
 
-        grid[0]['2H_AVANT'].push({ name: 'Ondansétron 8mg', color: 'var(--color-anti)' });
-        grid[0]['2H_AVANT'].push({ name: 'Aprépitant 125mg', color: 'var(--color-anti)' });
-        grid[1]['MATIN'].push({ name: 'Aprépitant 80mg', color: 'var(--color-anti)' });
-        grid[1]['MATIN'].push({ name: 'Solupred 2cp', color: 'var(--color-anti)' });
-        grid[1]['SOIR'].push({ name: 'Olanzapine 5mg', color: 'var(--color-anti)' });
-        grid[2]['MATIN'].push({ name: 'Aprépitant 80mg', color: 'var(--color-anti)' });
-        grid[2]['MATIN'].push({ name: 'Solupred 2cp', color: 'var(--color-anti)' });
-        grid[2]['MATIN'].push({ name: 'Pegfilgrastim', color: 'var(--color-aplasie)' });
-        grid[2]['SOIR'].push({ name: 'Olanzapine 5mg', color: 'var(--color-anti)' });
-        grid[3]['MATIN'].push({ name: 'Solupred 1cp', color: 'var(--color-anti)' });
-        grid[3]['SOIR'].push({ name: 'Olanzapine 5mg', color: 'var(--color-anti)' });
+        grid[0]['2H_AVANT'].push({ name: '💊 Ondansétron 8mg', color: 'var(--color-anti)' });
+        grid[0]['2H_AVANT'].push({ name: '💊 Aprépitant 125mg', color: 'var(--color-anti)' });
+        grid[1]['MATIN'].push({ name: '💊 Aprépitant 80mg', color: 'var(--color-anti)' });
+        grid[1]['MATIN'].push({ name: '💊 Solupred 2cp', color: 'var(--color-anti)' });
+        grid[1]['SOIR'].push({ name: '💊 Olanzapine 5mg', color: 'var(--color-anti)' });
+        grid[2]['MATIN'].push({ name: '💊 Aprépitant 80mg', color: 'var(--color-anti)' });
+        grid[2]['MATIN'].push({ name: '💊 Solupred 2cp', color: 'var(--color-anti)' });
+        grid[2]['MATIN'].push({ name: '💉 Pegfilgrastim', color: 'var(--color-aplasie)' });
+        grid[2]['SOIR'].push({ name: '💊 Olanzapine 5mg', color: 'var(--color-anti)' });
+        grid[3]['MATIN'].push({ name: '💊 Solupred 1cp', color: 'var(--color-anti)' });
+        grid[3]['SOIR'].push({ name: '💊 Olanzapine 5mg', color: 'var(--color-anti)' });
 
         for (var i = 0; i < 7; i++) {
-            grid[i]['MATIN'].push({ name: 'Bains Bouche', color: 'var(--color-bains)' });
-            grid[i]['MIDI'].push({ name: 'Bains Bouche', color: 'var(--color-bains)' });
-            grid[i]['SOIR'].push({ name: 'Bains Bouche', color: 'var(--color-bains)' });
+            grid[i]['MATIN'].push({ name: '🫗 Bains Bouche', color: 'var(--color-bains)' });
+            grid[i]['MIDI'].push({ name: '🫗 Bains Bouche', color: 'var(--color-bains)' });
+            grid[i]['SOIR'].push({ name: '🫗 Bains Bouche', color: 'var(--color-bains)' });
         }
 
         return grid;
@@ -509,9 +573,9 @@
     function renderAgenda() {
         var table = document.getElementById('pat-schedule-table');
         var timeslots = ['2H_AVANT', 'MATIN', 'MIDI', 'SOIR'];
-        var labels = ['2h Avant Chimio', 'Matin', 'Midi', 'Soir'];
+        var labels = ['2h Avant (' + (window.avantTimeStr || '07h00') + ')', 'Matin (08h)', 'Midi (12h)', 'Soir (20h)'];
         var html = '<thead><tr><th></th>';
-        for (var j = 1; j <= 7; j++) html += '<th>J' + j + '</th>';
+        for (var j = 0; j < 7; j++) html += '<th>' + (window.chemoDates ? window.chemoDates[j] : 'J' + (j+1)) + '</th>';
         html += '</tr></thead><tbody>';
         for (var t = 0; t < timeslots.length; t++) {
             html += '<tr><td class="time-row-label">' + labels[t] + '</td>';
@@ -522,7 +586,7 @@
                     html += '<div class="med-pill" style="background-color:' + meds[m].color + '">' + meds[m].name + '</div>';
                 }
                 if (window.hasSymptomMed && d === 2 && timeslots[t] === 'MIDI') {
-                    html += '<div class="med-pill" style="background-color:var(--color-symptom)">Métoclopramide</div>';
+                    html += '<div class="med-pill" style="background-color:var(--color-symptom)">💊 Métoclopramide</div>';
                 }
                 html += '</td>';
             }
