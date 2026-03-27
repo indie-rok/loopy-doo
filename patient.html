@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ChemoCompanion — Patient</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-light: #EFF6FF;
+            --primary-dark: #1E40AF;
+            --bg-body: #E2E8F0;
+            --bg-app: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --text-light: #94A3B8;
+            --color-anti: #10B981;
+            --color-aplasie: #EF4444;
+            --color-bains: #3B82F6;
+            --color-folli: #6B7280;
+            --color-symptom: #F97316;
+            --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-6: 24px; --space-8: 32px;
+            --radius-md: 12px; --radius-lg: 16px; --radius-xl: 24px; --radius-full: 9999px;
+            --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Manrope', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; line-height: 1.5;
+        }
+        #app-container {
+            width: 100%; max-width: 430px; height: 100vh; max-height: 932px;
+            background-color: var(--bg-app); position: relative; overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+        @media (min-width: 431px) {
+            #app-container { height: 90vh; border-radius: 40px; box-shadow: var(--shadow-lg), 0 0 0 12px #0F172A; }
+        }
+        .screen {
+            display: none !important; flex-direction: column; width: 100%; height: 100%;
+            position: absolute; top: 0; left: 0; background-color: var(--bg-app);
+            overflow-y: auto; animation: fadeIn 0.3s ease; padding-bottom: 80px;
+        }
+        .screen.active { display: flex !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        h1 { font-size: 24px; font-weight: 800; margin-bottom: var(--space-2); letter-spacing: -0.02em; }
+        h2 { font-size: 20px; font-weight: 700; margin-bottom: var(--space-4); letter-spacing: -0.01em; }
+        h3 { font-size: 16px; font-weight: 700; color: var(--text-main); }
+        p { font-size: 15px; color: var(--text-muted); }
+        .text-sm { font-size: 13px; } .text-xs { font-size: 11px; }
+        .p-6 { padding: var(--space-6); } .p-4 { padding: var(--space-4); }
+        .mt-4 { margin-top: var(--space-4); } .mt-6 { margin-top: var(--space-6); }
+        .mt-auto { margin-top: auto; } .mb-4 { margin-bottom: var(--space-4); } .mb-6 { margin-bottom: var(--space-6); }
+        .gap-2 { gap: var(--space-2); } .gap-4 { gap: var(--space-4); }
+        .flex { display: flex; } .flex-col { display: flex; flex-direction: column; }
+        .items-center { align-items: center; } .justify-between { justify-content: space-between; }
+        .justify-center { justify-content: center; } .text-center { text-align: center; }
+        .header {
+            padding: var(--space-6) var(--space-6) var(--space-4); background: var(--bg-card);
+            border-bottom: 1px solid #E2E8F0; display: flex; align-items: center;
+            gap: var(--space-4); position: sticky; top: 0; z-index: 10;
+        }
+        .btn {
+            display: flex; align-items: center; justify-content: center; width: 100%;
+            padding: 16px; border-radius: var(--radius-lg); border: none; font-size: 16px;
+            font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-primary { background-color: var(--primary); color: white; box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+        .btn-primary:active { transform: scale(0.98); }
+        .input-group { margin-bottom: var(--space-4); }
+        .input-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: var(--space-2); color: var(--text-main); }
+        .input-group input[type="text"],
+        .input-group input[type="date"],
+        .input-group input[type="time"],
+        .input-group input[type="number"] {
+            width: 100%; padding: 14px 16px; border-radius: var(--radius-md);
+            border: 1px solid #CBD5E1; font-size: 16px; font-family: inherit;
+            background: var(--bg-card); color: var(--text-main); transition: border-color 0.2s;
+        }
+        .input-group input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+        .brand-logo { font-size: 28px; font-weight: 800; color: var(--primary); text-align: center; margin-bottom: 24px; letter-spacing: -1px; }
+        .brand-logo span { color: var(--text-main); }
+        .schedule-table-container {
+            overflow-x: auto; background: var(--bg-card); border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm); margin-bottom: var(--space-6);
+        }
+        .schedule-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 600px; }
+        .schedule-table th, .schedule-table td {
+            border: 1px solid #E2E8F0; padding: 8px; text-align: center; vertical-align: top; width: 14.28%;
+        }
+        .schedule-table th { background: var(--bg-body); font-weight: 700; color: var(--text-main); position: sticky; top: 0; }
+        .time-row-label {
+            font-weight: 700; color: var(--text-muted); background: var(--bg-app); padding: 4px;
+            font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; text-align: left;
+        }
+        .med-pill {
+            display: inline-block; padding: 4px 6px; border-radius: 4px; color: white; font-weight: 600;
+            margin-bottom: 2px; width: 100%; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .timeline-card {
+            display: flex; align-items: stretch; background: var(--bg-card); border-radius: var(--radius-lg);
+            margin-bottom: var(--space-3); box-shadow: var(--shadow-sm); overflow: hidden;
+            position: relative; transition: opacity 0.3s;
+        }
+        .timeline-card.taken { opacity: 0.6; }
+        .timeline-card.taken .timeline-content h3 { text-decoration: line-through; color: var(--text-muted); }
+        .timeline-color-stripe { width: 8px; flex-shrink: 0; }
+        .timeline-content { padding: var(--space-4); flex: 1; cursor: pointer; }
+        .timeline-action {
+            padding: var(--space-4); display: flex; align-items: center;
+            justify-content: center; border-left: 1px solid #E2E8F0;
+        }
+        .custom-checkbox {
+            width: 28px; height: 28px; border-radius: 8px; border: 2px solid #CBD5E1;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;
+        }
+        .timeline-card.taken .custom-checkbox { background: var(--primary); border-color: var(--primary); }
+        .timeline-card.taken .custom-checkbox::after { content: "✓"; color: white; font-weight: bold; }
+        .chat-container { display: flex; flex-direction: column; gap: var(--space-4); flex: 1; }
+        .chat-bubble { max-width: 85%; padding: 12px 16px; border-radius: 20px; font-size: 15px; line-height: 1.4; animation: fadeIn 0.3s ease; }
+        .chat-bot { background: var(--bg-card); color: var(--text-main); border-bottom-left-radius: 4px; align-self: flex-start; box-shadow: var(--shadow-sm); }
+        .chat-user { background: var(--primary); color: white; border-bottom-right-radius: 4px; align-self: flex-end; box-shadow: 0 4px 12px rgba(37,99,235,0.2); }
+        .chat-actions { display: flex; gap: var(--space-2); margin-top: var(--space-2); flex-wrap: wrap; }
+        .chat-btn {
+            background: var(--primary-light); color: var(--primary); border: none;
+            padding: 8px 16px; border-radius: var(--radius-full); font-weight: 600; font-size: 14px; cursor: pointer;
+        }
+        .quick-replies { display: flex; gap: 8px; overflow-x: auto; padding: 12px 0; margin-top: auto; scrollbar-width: none; }
+        .quick-reply-btn {
+            background: var(--bg-card); border: 1px solid #E2E8F0; padding: 8px 16px;
+            border-radius: var(--radius-full); white-space: nowrap; font-weight: 600;
+            color: var(--text-main); box-shadow: var(--shadow-sm); cursor: pointer;
+        }
+        .chat-input-area {
+            display: flex; gap: 8px; background: var(--bg-card); padding: 12px var(--space-6);
+            border-top: 1px solid #E2E8F0; position: absolute; bottom: 80px; left: 0; width: 100%;
+        }
+        .chat-input-area input {
+            flex: 1; padding: 12px 16px; border-radius: var(--radius-full);
+            border: 1px solid #E2E8F0; background: var(--bg-body); font-family: inherit;
+        }
+        .bottom-nav {
+            position: absolute; bottom: 0; left: 0; width: 100%; background: var(--bg-card);
+            display: flex; justify-content: space-around; padding: 12px 0 24px;
+            border-top: 1px solid #E2E8F0; z-index: 20;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            color: var(--text-muted); background: none; border: none; font-family: inherit;
+            cursor: pointer; width: 33%;
+        }
+        .nav-item.active { color: var(--primary); font-weight: 700; }
+        .nav-icon { font-size: 24px; }
+        .nav-label { font-size: 11px; font-weight: 600; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+
+    <div id="screen-pat-login" class="screen active p-6 flex-col justify-center">
+        <div class="brand-logo">Chemo<span>Companion</span></div>
+        <h2 class="text-center">Bienvenue</h2>
+        <p class="text-center mb-6">Saisissez le code fourni par votre équipe médicale.</p>
+        <div class="input-group">
+            <input type="number" placeholder="Code à 6 chiffres" style="text-align: center; font-size: 24px; letter-spacing: 4px;" value="123456">
+        </div>
+        <button type="button" class="btn btn-primary mt-4" onclick="nav('screen-pat-onboarding')">Accéder</button>
+    </div>
+
+    <div id="screen-pat-onboarding" class="screen p-6">
+        <h2 class="mt-6">Préparation</h2>
+        <p class="mb-6">Pour personnaliser votre agenda, nous avons besoin de quelques informations.</p>
+        <div class="input-group">
+            <label>Date de votre prochaine chimiothérapie</label>
+            <input type="date" value="2026-10-15">
+        </div>
+        <div class="input-group">
+            <label>Heure de convocation</label>
+            <input type="time" value="09:00">
+        </div>
+        <div class="input-group mt-6">
+            <label>Quel est votre poids actuel ? (kg)</label>
+            <input type="number" placeholder="Ex: 65" value="68">
+        </div>
+        <button type="button" class="btn btn-primary mt-auto" onclick="nav('screen-pat-today')">Générer mon planning</button>
+    </div>
+
+    <div id="screen-pat-today" class="screen">
+        <div class="header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+            <div style="font-size: 14px; color: var(--text-muted);">Bonjour Claire,</div>
+            <h2 style="margin: 0;">J3 — Mercredi 15 Oct.</h2>
+        </div>
+
+        <div class="p-4" style="padding-bottom: 100px;">
+            <h3 class="mb-4" style="font-size: 14px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;">Matin</h3>
+
+            <div class="timeline-card taken">
+                <div class="timeline-color-stripe" style="background-color: var(--color-anti);"></div>
+                <div class="timeline-content" onclick="alert('Solupred : Corticoïde pour prévenir les nausées retardées après votre chimiothérapie.')">
+                    <h3>Solupred 20mg</h3>
+                    <p class="text-sm">1 comprimé au cours du repas</p>
+                </div>
+                <div class="timeline-action"><div class="custom-checkbox"></div></div>
+            </div>
+
+            <div class="timeline-card taken">
+                <div class="timeline-color-stripe" style="background-color: var(--color-bains);"></div>
+                <div class="timeline-content" onclick="alert('Bains de bouche au bicarbonate : Prévient les mucites (aphtes) causées par la chimiothérapie.')">
+                    <h3>Bains de bouche</h3>
+                    <p class="text-sm">Après le brossage des dents</p>
+                </div>
+                <div class="timeline-action"><div class="custom-checkbox"></div></div>
+            </div>
+
+            <div class="timeline-card">
+                <div class="timeline-color-stripe" style="background-color: var(--color-aplasie);"></div>
+                <div class="timeline-content" onclick="alert('Pegfilgrastim : Stimule la production de globules blancs pour prévenir les infections.')">
+                    <h3>Pegfilgrastim</h3>
+                    <p class="text-sm">Injection sous-cutanée (par infirmier)</p>
+                </div>
+                <div class="timeline-action"><div class="custom-checkbox" onclick="toggleMed(this, event)"></div></div>
+            </div>
+
+            <h3 class="mb-4 mt-6" style="font-size: 14px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;">Midi</h3>
+
+            <div class="timeline-card">
+                <div class="timeline-color-stripe" style="background-color: var(--color-bains);"></div>
+                <div class="timeline-content" onclick="alert('Bains de bouche au bicarbonate : À faire après chaque repas pour protéger votre bouche.')">
+                    <h3>Bains de bouche</h3>
+                    <p class="text-sm">Après le repas</p>
+                </div>
+                <div class="timeline-action"><div class="custom-checkbox" onclick="toggleMed(this, event)"></div></div>
+            </div>
+
+            <h3 id="symptom-header" class="mb-4 mt-6 hidden" style="font-size: 14px; text-transform: uppercase; color: var(--color-symptom); letter-spacing: 1px;">Ajouté suite à un symptôme</h3>
+
+            <div id="symptom-card" class="timeline-card hidden">
+                <div class="timeline-color-stripe" style="background-color: var(--color-symptom);"></div>
+                <div class="timeline-content" onclick="alert('Métoclopramide : Médicament anti-nausée à prendre 30 min avant les repas.')">
+                    <h3>Métoclopramide</h3>
+                    <p class="text-sm">30 min avant le repas — renouvelable toutes les 8h</p>
+                </div>
+                <div class="timeline-action"><div class="custom-checkbox" onclick="toggleMed(this, event)"></div></div>
+            </div>
+
+            <h3 class="mb-4 mt-6" style="font-size: 14px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px;">Soir</h3>
+
+            <div class="timeline-card">
+                <div class="timeline-color-stripe" style="background-color: var(--color-bains);"></div>
+                <div class="timeline-content" onclick="alert('Bains de bouche au bicarbonate : Dernier bain de bouche de la journée, après le dîner.')">
+                    <h3>Bains de bouche</h3>
+                    <p class="text-sm">Après le dîner</p>
+                </div>
+                <div class="timeline-action"><div class="custom-checkbox" onclick="toggleMed(this, event)"></div></div>
+            </div>
+
+            <div class="timeline-card">
+                <div class="timeline-color-stripe" style="background-color: var(--color-anti);"></div>
+                <div class="timeline-content" onclick="alert('Olanzapine : Aide à prévenir les nausées retardées, à prendre le soir.')">
+                    <h3>Olanzapine 5mg</h3>
+                    <p class="text-sm">Au coucher</p>
+                </div>
+                <div class="timeline-action"><div class="custom-checkbox" onclick="toggleMed(this, event)"></div></div>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <button type="button" class="nav-item active" onclick="nav('screen-pat-today')">
+                <span class="nav-icon">📅</span><span class="nav-label">Aujourd'hui</span>
+            </button>
+            <button type="button" class="nav-item" onclick="nav('screen-pat-chat')">
+                <span class="nav-icon">💬</span><span class="nav-label">Symptôme</span>
+            </button>
+            <button type="button" class="nav-item" onclick="nav('screen-pat-agenda')">
+                <span class="nav-icon">📋</span><span class="nav-label">Agenda</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="screen-pat-chat" class="screen" style="padding-bottom: 140px;">
+        <div class="header">
+            <h3 style="margin: 0; text-align: center; width: 100%;">Assistant Médical</h3>
+        </div>
+
+        <div class="p-4 chat-container" id="chat-history">
+            <div class="chat-bubble chat-bot">
+                Bonjour Claire, comment vous sentez-vous aujourd'hui ? Si vous ressentez un effet secondaire, je peux vous aider.
+            </div>
+            <div class="quick-replies" id="chat-quick-replies">
+                <button type="button" class="quick-reply-btn" onclick="simulateChat('Nausée')">🤢 Nausée</button>
+                <button type="button" class="quick-reply-btn" onclick="simulateChat('Diarrhée')">🚽 Diarrhée</button>
+                <button type="button" class="quick-reply-btn" onclick="simulateChat('Douleur')">🤕 Douleur</button>
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" placeholder="Décrivez votre symptôme..." id="chat-text-input" onkeydown="if(event.key==='Enter')sendChatMessage()">
+            <button type="button" class="btn btn-primary" style="width: auto; padding: 12px; border-radius: 50%;" onclick="sendChatMessage()">↑</button>
+        </div>
+
+        <div class="bottom-nav">
+            <button type="button" class="nav-item" onclick="nav('screen-pat-today')">
+                <span class="nav-icon">📅</span><span class="nav-label">Aujourd'hui</span>
+            </button>
+            <button type="button" class="nav-item active" onclick="nav('screen-pat-chat')">
+                <span class="nav-icon">💬</span><span class="nav-label">Symptôme</span>
+            </button>
+            <button type="button" class="nav-item" onclick="nav('screen-pat-agenda')">
+                <span class="nav-icon">📋</span><span class="nav-label">Agenda</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="screen-pat-agenda" class="screen p-6">
+        <div class="header" style="padding: 0 0 24px 0; border: none; background: transparent;">
+            <h2 style="margin:0">Votre Semaine</h2>
+        </div>
+
+        <div class="schedule-table-container">
+            <table class="schedule-table" id="pat-schedule-table"></table>
+        </div>
+
+        <div class="mt-4 p-4" style="border-radius: 12px; font-size: 13px; box-shadow: var(--shadow-sm); background: white;">
+            <h4 style="margin-bottom: 8px;">Légende :</h4>
+            <div class="flex items-center gap-2" style="margin-bottom: 4px;"><span style="width:12px;height:12px;border-radius:3px;background:var(--color-anti);display:inline-block;"></span> Anti-nauséeux</div>
+            <div class="flex items-center gap-2" style="margin-bottom: 4px;"><span style="width:12px;height:12px;border-radius:3px;background:var(--color-aplasie);display:inline-block;"></span> Prévention infection</div>
+            <div class="flex items-center gap-2" style="margin-bottom: 4px;"><span style="width:12px;height:12px;border-radius:3px;background:var(--color-bains);display:inline-block;"></span> Soins de bouche</div>
+            <div class="flex items-center gap-2" style="margin-bottom: 4px;"><span style="width:12px;height:12px;border-radius:3px;background:var(--color-folli);display:inline-block;"></span> Prévention cutanée</div>
+            <div class="flex items-center gap-2"><span style="width:12px;height:12px;border-radius:3px;background:var(--color-symptom);display:inline-block;"></span> Traitement symptôme</div>
+        </div>
+
+        <div class="bottom-nav">
+            <button type="button" class="nav-item" onclick="nav('screen-pat-today')">
+                <span class="nav-icon">📅</span><span class="nav-label">Aujourd'hui</span>
+            </button>
+            <button type="button" class="nav-item" onclick="nav('screen-pat-chat')">
+                <span class="nav-icon">💬</span><span class="nav-label">Symptôme</span>
+            </button>
+            <button type="button" class="nav-item active" onclick="nav('screen-pat-agenda')">
+                <span class="nav-icon">📋</span><span class="nav-label">Agenda</span>
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function nav(screenId) {
+        document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+        document.getElementById(screenId).classList.add('active');
+        document.getElementById(screenId).scrollTop = 0;
+        if (screenId === 'screen-pat-agenda') renderAgenda();
+    }
+
+    function toggleMed(el, event) {
+        event.stopPropagation();
+        el.closest('.timeline-card').classList.toggle('taken');
+    }
+
+    window.hasSymptomMed = false;
+
+    var symptomResponses = {
+        'Nausée': {
+            med: 'Métoclopramide',
+            dose: '1 comprimé 30 minutes avant votre prochain repas, renouvelable toutes les 8h',
+            advice: 'Pensez à bien vous hydrater régulièrement.'
+        },
+        'Diarrhée': {
+            med: 'Diosmectite',
+            dose: '1 sachet, jusqu\'à 3 fois par jour (respecter 2h d\'écart avec les autres médicaments)',
+            advice: 'Évitez les fruits, fibres, laitages et viandes jusqu\'à résolution.'
+        },
+        'Douleur': {
+            med: 'Paracétamol',
+            dose: '1000mg (votre poids > 50kg), renouvelable toutes les 6h',
+            advice: 'Ne dépassez pas 4 prises par jour.'
+        }
+    };
+
+    function simulateChat(symptom) {
+        var container = document.getElementById('chat-history');
+        var replies = document.getElementById('chat-quick-replies');
+        replies.style.display = 'none';
+
+        var userMsg = document.createElement('div');
+        userMsg.className = 'chat-bubble chat-user';
+        userMsg.innerText = "J'ai des " + symptom.toLowerCase() + "s depuis ce matin";
+        container.appendChild(userMsg);
+        container.scrollTop = container.scrollHeight;
+
+        setTimeout(function() {
+            var data = symptomResponses[symptom];
+            if (!data) return;
+
+            var botMsg = document.createElement('div');
+            botMsg.className = 'chat-bubble chat-bot';
+            botMsg.innerHTML =
+                "Je comprends. Compte tenu de votre traitement <strong>FOLFOX</strong>, je vous recommande :<br><br>" +
+                "<strong>" + data.med + "</strong> — " + data.dose + ".<br><br>" +
+                data.advice + "<br><br>" +
+                "Souhaitez-vous que j'ajoute ce traitement à votre agenda ?" +
+                '<div class="chat-actions">' +
+                    '<button type="button" class="chat-btn" onclick="acceptMed(this, \'' + symptom + '\')">Oui, ajouter</button>' +
+                    '<button type="button" class="chat-btn" style="background: var(--bg-body); color: var(--text-muted);" onclick="this.parentElement.innerHTML=\'<em>Refusé</em>\'">Non merci</button>' +
+                '</div>';
+            container.appendChild(botMsg);
+            container.scrollTop = container.scrollHeight;
+        }, 800);
+    }
+
+    function acceptMed(btnElement, symptom) {
+        var data = symptomResponses[symptom];
+        btnElement.parentElement.innerHTML = '<span style="color: var(--color-anti); font-weight: 600;">✓ Ajouté à l\'agenda</span>';
+        window.hasSymptomMed = true;
+
+        document.getElementById('symptom-header').classList.remove('hidden');
+        document.getElementById('symptom-card').classList.remove('hidden');
+
+        setTimeout(function() {
+            var container = document.getElementById('chat-history');
+            var confirm = document.createElement('div');
+            confirm.className = 'chat-bubble chat-bot';
+            confirm.innerHTML = "<strong>" + data.med + "</strong> a été ajouté à votre planning. Si les symptômes persistent plus de 24h ou s'aggravent, contactez les urgences (15).";
+            container.appendChild(confirm);
+            container.scrollTop = container.scrollHeight;
+        }, 500);
+    }
+
+    function sendChatMessage() {
+        var input = document.getElementById('chat-text-input');
+        var text = input.value.trim();
+        if (!text) return;
+        input.value = '';
+
+        var container = document.getElementById('chat-history');
+        var replies = document.getElementById('chat-quick-replies');
+        if (replies) replies.style.display = 'none';
+
+        var userMsg = document.createElement('div');
+        userMsg.className = 'chat-bubble chat-user';
+        userMsg.innerText = text;
+        container.appendChild(userMsg);
+        container.scrollTop = container.scrollHeight;
+
+        var lower = text.toLowerCase();
+        var detected = null;
+        if (lower.match(/naus|vomir|vomissement/)) detected = 'Nausée';
+        else if (lower.match(/diarrh|selle|colique/)) detected = 'Diarrhée';
+        else if (lower.match(/douleur|mal|j'ai mal/)) detected = 'Douleur';
+
+        setTimeout(function() {
+            var botMsg = document.createElement('div');
+            botMsg.className = 'chat-bubble chat-bot';
+
+            if (detected) {
+                var data = symptomResponses[detected];
+                botMsg.innerHTML =
+                    "Je détecte un symptôme de type <strong>" + detected.toLowerCase() + "</strong>.<br><br>" +
+                    "Je vous recommande : <strong>" + data.med + "</strong> — " + data.dose + ".<br><br>" +
+                    data.advice + "<br><br>" +
+                    "Souhaitez-vous l'ajouter à votre agenda ?" +
+                    '<div class="chat-actions">' +
+                        '<button type="button" class="chat-btn" onclick="acceptMed(this, \'' + detected + '\')">Oui, ajouter</button>' +
+                        '<button type="button" class="chat-btn" style="background: var(--bg-body); color: var(--text-muted);" onclick="this.parentElement.innerHTML=\'<em>Refusé</em>\'">Non merci</button>' +
+                    '</div>';
+            } else {
+                botMsg.innerHTML = "Je ne peux répondre qu'aux symptômes liés à votre traitement (nausées, diarrhée, douleur). Pour toute autre question, contactez votre équipe soignante.";
+            }
+
+            container.appendChild(botMsg);
+            container.scrollTop = container.scrollHeight;
+        }, 800);
+    }
+
+    var scheduleGrid = (function() {
+        var grid = [];
+        for (var i = 0; i < 7; i++) grid.push({ '2H_AVANT': [], 'MATIN': [], 'MIDI': [], 'SOIR': [] });
+
+        grid[0]['2H_AVANT'].push({ name: 'Ondansétron 8mg', color: 'var(--color-anti)' });
+        grid[0]['2H_AVANT'].push({ name: 'Aprépitant 125mg', color: 'var(--color-anti)' });
+        grid[1]['MATIN'].push({ name: 'Aprépitant 80mg', color: 'var(--color-anti)' });
+        grid[1]['MATIN'].push({ name: 'Solupred 2cp', color: 'var(--color-anti)' });
+        grid[1]['SOIR'].push({ name: 'Olanzapine 5mg', color: 'var(--color-anti)' });
+        grid[2]['MATIN'].push({ name: 'Aprépitant 80mg', color: 'var(--color-anti)' });
+        grid[2]['MATIN'].push({ name: 'Solupred 2cp', color: 'var(--color-anti)' });
+        grid[2]['MATIN'].push({ name: 'Pegfilgrastim', color: 'var(--color-aplasie)' });
+        grid[2]['SOIR'].push({ name: 'Olanzapine 5mg', color: 'var(--color-anti)' });
+        grid[3]['MATIN'].push({ name: 'Solupred 1cp', color: 'var(--color-anti)' });
+        grid[3]['SOIR'].push({ name: 'Olanzapine 5mg', color: 'var(--color-anti)' });
+
+        for (var i = 0; i < 7; i++) {
+            grid[i]['MATIN'].push({ name: 'Bains Bouche', color: 'var(--color-bains)' });
+            grid[i]['MIDI'].push({ name: 'Bains Bouche', color: 'var(--color-bains)' });
+            grid[i]['SOIR'].push({ name: 'Bains Bouche', color: 'var(--color-bains)' });
+        }
+
+        return grid;
+    })();
+
+    function renderAgenda() {
+        var table = document.getElementById('pat-schedule-table');
+        var timeslots = ['2H_AVANT', 'MATIN', 'MIDI', 'SOIR'];
+        var labels = ['2h Avant Chimio', 'Matin', 'Midi', 'Soir'];
+        var html = '<thead><tr><th></th>';
+        for (var j = 1; j <= 7; j++) html += '<th>J' + j + '</th>';
+        html += '</tr></thead><tbody>';
+        for (var t = 0; t < timeslots.length; t++) {
+            html += '<tr><td class="time-row-label">' + labels[t] + '</td>';
+            for (var d = 0; d < 7; d++) {
+                html += '<td>';
+                var meds = scheduleGrid[d][timeslots[t]];
+                for (var m = 0; m < meds.length; m++) {
+                    html += '<div class="med-pill" style="background-color:' + meds[m].color + '">' + meds[m].name + '</div>';
+                }
+                if (window.hasSymptomMed && d === 2 && timeslots[t] === 'MIDI') {
+                    html += '<div class="med-pill" style="background-color:var(--color-symptom)">Métoclopramide</div>';
+                }
+                html += '</td>';
+            }
+            html += '</tr>';
+        }
+        html += '</tbody>';
+        table.innerHTML = html;
+    }
+</script>
+</body>
+</html>
